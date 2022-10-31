@@ -155,7 +155,7 @@ public class TrainList {
         return moveTrains;
     }
 
-    private List<Train> getTransferTrains(String departurePoint, String destination){
+    private List<Train> getTransferTrains(String departurePoint, String destination) {
         return getMoveTrains(departurePoint, destination).stream().distinct().sorted(new TrainComparator()).collect(Collectors.toList());
     }
 
