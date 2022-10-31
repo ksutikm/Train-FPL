@@ -137,16 +137,8 @@ public class TrainList {
         }
     }
 
-    public void moveTrain() {
-        Scanner sc = new Scanner(System.in);
+    private ArrayList<Train> getMoveTrains(String departurePoint, String destination) {
         ArrayList<Train> moveTrains = new ArrayList<>();
-        System.out.println("\n***Маршрут поездки по пунктам отправления и назначения***\n");
-        System.out.print("Введите пункт отправления -> ");
-        String departurePoint = sc.next();
-
-        System.out.print("Введите пункт назначения -> ");
-        String destination = sc.next();
-
         for (Train t : trains) {
             if (t.getDeparturePoint().toLowerCase().equals(departurePoint.toLowerCase())) {
                 for (Train t2 : trains) {
@@ -158,9 +150,18 @@ public class TrainList {
                 }
             }
         }
+        return moveTrains;
+    }
+
+    public void moveTrain() {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println("\n***Маршрут поездки по пунктам отправления и назначения***\n");
+        String departurePoint = getPoint(sc, "Введите пункт отправления");
+        String destination = getPoint(sc, "Введите пункт назначения");
 
         System.out.println("\n***Список поездов с пересадкой***\n");
-        trains.stream().distinct().sorted(new TrainComparator()).forEach(System.out::println);
+        getMoveTrains(departurePoint, destination).stream().distinct().sorted(new TrainComparator()).forEach(System.out::println);
 
         System.out.println("\n***Список поездов без пересадки***\n");
         trains.stream().filter(t -> t.getDeparturePoint().toLowerCase().equals(departurePoint.toLowerCase()))
