@@ -3,7 +3,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Scanner;
 
 import static java.lang.System.exit;
@@ -11,18 +10,56 @@ import static java.lang.System.exit;
 public class TrainList {
     private ArrayList<Train> trains;
 
-    Scanner sc = new Scanner(System.in);
-    private Comparator<Train> comparatorTrain = new TrainComparator();
-    private static int number;
-    private static String departurePoint;
-    private static String destination;
-    private static String departureTime;
-    private static String arrivalTime;
-    private static double ticketPrice;
-
     TrainList() {
         this.trains = new ArrayList<>();
         scannerData();
+    }
+
+    private String getPoint(Scanner sc, String message) {
+        printMessage(message);
+        return sc.next();
+    }
+
+    private int getNumberTrain(Scanner sc) {
+        printMessage("Введите номер поезда");
+        int number =sc.nextInt();
+        if (number <= 0) try {
+            throw new MyException("Ошибка!!! Введен неверный номер поезда!");
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
+        return number;
+    }
+
+    private double getTicketPrice(Scanner sc) {
+        printMessage("Введите стоимость билета");
+        return sc.nextDouble();
+    }
+
+    private LocalTime getTime(Scanner sc, String message) {
+        printMessage(message);
+        LocalTime time = null;
+        try {
+            time = getTime(sc);
+        }  catch (MyException me) {
+            System.out.println(me.getMessage());
+        }
+        return time;
+    }
+
+    private LocalTime getTime(Scanner sc) throws MyException {
+        String[] time;
+            String enteredTime = sc.next();
+            if (!enteredTime.matches("[0-9][0-9]:[0-9][0-9]"))
+                throw new MyException("Ошибка!!! Введен неверный формат времени!");
+            time = enteredTime.split(":");
+            if (Integer.parseInt(time[0]) >= 24 || Integer.parseInt(time[1]) >= 60)
+                throw new MyException("Ошибка!!! Введен неверный формат времени!");
+        return getLocalTime(time);
+    }
+
+    private LocalTime getLocalTime(String[] time) {
+        return LocalTime.of(Integer.parseInt(time[0]), Integer.parseInt(time[1]));
     }
 
     private void scannerData() {
@@ -47,54 +84,21 @@ public class TrainList {
     }
 
     public void addTrain() {
-        try {
-            String s1[], s2[];
-
-            System.out.println("\n***Добавление поезда***\n");
-
-            System.out.print("Введите номер поезда -> ");
-            number = sc.nextInt();
-            if (number <= 0) throw new MyException("Ошибка!!! Введен неверный номер поезда!");
-
-            System.out.print("Введите пункт отправления -> ");
-            departurePoint = sc.next();
-
-            System.out.print("Введите пункт назначения -> ");
-            destination = sc.next();
-
-            System.out.print("Введите время отправления -> ");
-            departureTime = sc.next();
-            if (!departureTime.matches("[0-9][0-9]:[0-9][0-9]"))
-                throw new MyException("Ошибка!!! Введен неверный формат времени!");
-            s1 = departureTime.split(":");
-            if (Integer.parseInt(s1[0]) >= 24 || Integer.parseInt(s1[1]) >= 60)
-                throw new MyException("Ошибка!!! Введен неверный формат времени!");
-
-            System.out.print("Введите время прибытия -> ");
-            arrivalTime = sc.next();
-            if (!arrivalTime.matches("[0-9][0-9]:[0-9][0-9]"))
-                throw new MyException("Ошибка!!! Введен неверный формат времени!");
-            s2 = arrivalTime.split(":");
-            if (Integer.parseInt(s2[0]) >= 24 || Integer.parseInt(s2[1]) >= 60)
-                throw new MyException("Ошибка!!! Введен неверный формат времени!");
-
-            System.out.print("Введите стоимость билета -> ");
-            ticketPrice = sc.nextDouble();
-            if (ticketPrice <= 0.0) throw new MyException("Ошибка!!! Введена неверная стоимость билета!");
-
-            LocalTime t1 = LocalTime.of(Integer.parseInt(s1[0]), Integer.parseInt(s1[1]));
-            LocalTime t2 = LocalTime.of(Integer.parseInt(s2[0]), Integer.parseInt(s2[1]));
-            Train t = new Train(number, departurePoint, destination, t1, t2, ticketPrice);
-            trains.add(t);
-
-        } catch (MyException me) {
-            System.out.println(me.getMessage());
-        }
+        Scanner sc = new Scanner(System.in);
+        System.out.println("\n***Добавление поезда***\n");
+        trains.add(new Train(
+                getNumberTrain(sc),
+                getPoint(sc, "Введите пункт отправления"),
+                getPoint(sc, "Введите пункт назначения"),
+                getTime(sc, "Введите время отправления"),
+                getTime(sc, "Введите время прибытия"),
+                getTicketPrice(sc)
+        ));
     }
 
     public int removeTrain() {
         int num = -1;
-        try {
+        try(Scanner sc = new Scanner(System.in)) {
             System.out.println("\n***Удаление поезда***");
             printTrains();
             System.out.print("Введите номер поезда -> ");
@@ -124,13 +128,14 @@ public class TrainList {
     }
 
     public void moveTrain() {
+        Scanner sc = new Scanner(System.in);
         ArrayList<Train> moveTrains = new ArrayList<>();
         System.out.println("\n***Маршрут поездки по пунктам отправления и назначения***\n");
         System.out.print("Введите пункт отправления -> ");
-        departurePoint = sc.next();
+        String departurePoint = sc.next();
 
         System.out.print("Введите пункт назначения -> ");
-        destination = sc.next();
+        String destination = sc.next();
 
         for (Train t : trains) {
             if (t.getDeparturePoint().toLowerCase().equals(departurePoint.toLowerCase())) {
@@ -145,26 +150,26 @@ public class TrainList {
         }
 
         System.out.println("\n***Список поездов с пересадкой***\n");
-        trains.stream().distinct().sorted(comparatorTrain).forEach(System.out::println);
+        trains.stream().distinct().sorted(new TrainComparator()).forEach(System.out::println);
 
         System.out.println("\n***Список поездов без пересадки***\n");
         trains.stream().filter(t -> t.getDeparturePoint().toLowerCase().equals(departurePoint.toLowerCase()))
                 .filter(train -> train.getDestination().toLowerCase().equals(destination.toLowerCase()))
-                .sorted(comparatorTrain).forEach(System.out::println);
+                .sorted(new TrainComparator()).forEach(System.out::println);
 
     }
 
     public void listPointAndTime() {
-        try {
+        try (Scanner sc = new Scanner(System.in)){
             String s2[];
 
             System.out.println("\n***Список поездов по пункту отправления и времени прибытия***\n");
 
             System.out.print("Введите пункт отправления -> ");
-            departurePoint = sc.next();
+            String departurePoint = sc.next();
 
             System.out.print("Введите время прибытия -> ");
-            arrivalTime = sc.next();
+            String arrivalTime = sc.next();
             if (!arrivalTime.matches("[0-9][0-9]:[0-9][0-9]"))
                 throw new MyException("Ошибка!!! Введен неверный формат времени!");
             s2 = arrivalTime.split(":");
@@ -184,23 +189,27 @@ public class TrainList {
     }
 
     public void listPoints() {
-
+        Scanner sc = new Scanner(System.in);
         System.out.println("\n***Список поездов по пунктам отправления и назначения***\n");
         System.out.print("Введите пункт отправления -> ");
-        departurePoint = sc.next();
+        String departurePoint = sc.next();
 
         System.out.print("Введите пункт назначения -> ");
-        destination = sc.next();
+        String destination = sc.next();
 
         System.out.println("\n***Список поездов***\n");
 
         trains.stream().filter(t -> t.getDeparturePoint().toLowerCase().equals(departurePoint.toLowerCase()))
                 .filter(train -> train.getDestination().toLowerCase().equals(destination.toLowerCase()))
-                .sorted(comparatorTrain).forEach(System.out::println);
+                .sorted(new TrainComparator()).forEach(System.out::println);
     }
 
     public void printTrains() {
         System.out.println("\n***Список поездов***\n");
-        trains.stream().sorted(comparatorTrain).forEach(System.out::println);
+        trains.stream().sorted(new TrainComparator()).forEach(System.out::println);
+    }
+
+    private void printMessage(String message) {
+        System.out.print(message + " -> ");
     }
 }
