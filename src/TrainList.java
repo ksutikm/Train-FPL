@@ -20,14 +20,11 @@ public class TrainList {
         return sc.next();
     }
 
-    private int getNumberTrain(Scanner sc) {
+    private int getNumberTrain(Scanner sc) throws MyException {
         printMessage("Введите номер поезда");
         int number = sc.nextInt();
-        if (number <= 0) try {
+        if (number <= 0)
             throw new MyException("Ошибка!!! Введен неверный номер поезда!");
-        } catch (MyException e) {
-            e.printStackTrace();
-        }
         return number;
     }
 
@@ -100,14 +97,18 @@ public class TrainList {
     public void addTrain() {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n***Добавление поезда***\n");
-        trains.add(getNewTrain(
-                getNumberTrain(sc),
-                getPoint(sc, "Введите пункт отправления"),
-                getPoint(sc, "Введите пункт назначения"),
-                getTime(sc, "Введите время отправления"),
-                getTime(sc, "Введите время прибытия"),
-                getTicketPrice(sc)
-        ));
+        try {
+            trains.add(getNewTrain(
+                    getNumberTrain(sc),
+                    getPoint(sc, "Введите пункт отправления"),
+                    getPoint(sc, "Введите пункт назначения"),
+                    getTime(sc, "Введите время отправления"),
+                    getTime(sc, "Введите время прибытия"),
+                    getTicketPrice(sc)
+            ));
+        } catch (MyException me) {
+           System.out.println(me.getMessage());
+        }
     }
 
     public int removeTrain() {
