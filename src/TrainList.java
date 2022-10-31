@@ -74,7 +74,7 @@ public class TrainList {
                         !str[3].matches("[0-9][0-9]:[0-9][0-9]") || !str[4].matches("[0-9][0-9]:[0-9][0-9]"))
                     throw new IOException();
                 String[] s1 = getArrayStrings(str[3], ":");
-                String[] s2 = getArrayStrings(str[3], ":");
+                String[] s2 = getArrayStrings(str[4], ":");
                 LocalTime t1 = LocalTime.of(Integer.parseInt(s1[0]), Integer.parseInt(s1[1]));
                 LocalTime t2 = LocalTime.of(Integer.parseInt(s2[0]), Integer.parseInt(s2[1]));
                 trains.add(new Train(Integer.parseInt(str[0]), str[1], str[2], t1, t2, Double.parseDouble(str[5])));
