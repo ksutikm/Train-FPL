@@ -107,8 +107,17 @@ public class TrainList {
                     getTicketPrice(sc)
             ));
         } catch (MyException me) {
-           System.out.println(me.getMessage());
+            System.out.println(me.getMessage());
         }
+    }
+
+    private Train getTrainForRemove(Scanner sc) throws MyException {
+        int numberTrain = getNumberTrain(sc);
+        return getTrainByNumber(numberTrain);
+    }
+
+    private Train getTrainByNumber(int numberTrain) {
+        return trains.stream().filter(t -> t.getNumber() == numberTrain).findFirst().orElse(null);
     }
 
     public int removeTrain() {
@@ -116,26 +125,13 @@ public class TrainList {
         try (Scanner sc = new Scanner(System.in)) {
             System.out.println("\n***Удаление поезда***");
             printTrains();
-            System.out.print("Введите номер поезда -> ");
-            num = sc.nextInt();
-            if (num <= 0) throw new MyException("Ошибка!!! Введен отрицательный или нулевой номер поезда!");
-            boolean flag = false;
-            int i = 0;
-            for (Train t : trains) {
-                if (t.getNumber() == num) {
-                    flag = true;
-                    break;
-                }
-                i++;
-            }
-
-            if (flag) {
-                trains.remove(i);
+            Train train = getTrainForRemove(sc);
+            if (train != null) {
+                trains.remove(train);
+                return train.getNumber();
             } else {
-                num = -1;
                 throw new MyException("Введен номер поезда, которого нет в списках!");
             }
-
         } catch (MyException me) {
             System.out.println(me.getMessage());
         }
