@@ -11,18 +11,19 @@ import static java.lang.System.exit;
 
 public class TrainList {
     private List<Train> trains;
+    Scanner sc = new Scanner(System.in);
 
     TrainList() {
         this.trains = new ArrayList<>();
         scannerData();
     }
 
-    private String getPoint(Scanner sc, String message) {
+    private String getPoint(String message) {
         printMessage(message);
         return sc.next();
     }
 
-    private int getNumberTrain(Scanner sc) throws MyException {
+    private int getNumberTrain() throws MyException {
         printMessage("Введите номер поезда");
         int number = sc.nextInt();
         if (number <= 0)
@@ -30,23 +31,23 @@ public class TrainList {
         return number;
     }
 
-    private double getTicketPrice(Scanner sc) {
+    private double getTicketPrice() {
         printMessage("Введите стоимость билета");
         return sc.nextDouble();
     }
 
-    private LocalTime getTime(Scanner sc, String message) {
+    private LocalTime getTime(String message) {
         printMessage(message);
         LocalTime time = null;
         try {
-            time = getTime(sc);
+            time = getTime();
         } catch (MyException me) {
             System.out.println(me.getMessage());
         }
         return time;
     }
 
-    private LocalTime getTime(Scanner sc) throws MyException {
+    private LocalTime getTime() throws MyException {
         String[] time;
         String enteredTime = sc.next();
         if (!enteredTime.matches("[0-9][0-9]:[0-9][0-9]"))
@@ -97,16 +98,15 @@ public class TrainList {
     }
 
     public void addTrain() {
-        Scanner sc = new Scanner(System.in);
         System.out.println("\n***Добавление поезда***\n");
         try {
             trains.add(getNewTrain(
-                    getNumberTrain(sc),
-                    getPoint(sc, "Введите пункт отправления"),
-                    getPoint(sc, "Введите пункт назначения"),
-                    getTime(sc, "Введите время отправления"),
-                    getTime(sc, "Введите время прибытия"),
-                    getTicketPrice(sc)
+                    getNumberTrain(),
+                    getPoint("Введите пункт отправления"),
+                    getPoint("Введите пункт назначения"),
+                    getTime("Введите время отправления"),
+                    getTime("Введите время прибытия"),
+                    getTicketPrice()
             ));
             System.out.println("\nПоезд добавлен!");
         } catch (MyException me) {
@@ -114,8 +114,8 @@ public class TrainList {
         }
     }
 
-    private Train getTrainForRemove(Scanner sc) throws MyException {
-        int numberTrain = getNumberTrain(sc);
+    private Train getTrainForRemove() throws MyException {
+        int numberTrain = getNumberTrain();
         return getTrainByNumber(numberTrain);
     }
 
@@ -124,10 +124,10 @@ public class TrainList {
     }
 
     public void removeTrain() {
-        try (Scanner sc = new Scanner(System.in)) {
+        try {
             System.out.println("\n***Удаление поезда***");
             printTrains();
-            Train train = getTrainForRemove(sc);
+            Train train = getTrainForRemove();
             if (train != null) {
                 trains.remove(train);
                 System.out.println("\nПоезд №" + train.getNumber() + " удален!");
@@ -166,11 +166,9 @@ public class TrainList {
     }
 
     public void moveTrain() {
-        Scanner sc = new Scanner(System.in);
-
         System.out.println("\n***Маршрут поездки по пунктам отправления и назначения***\n");
-        String departurePoint = getPoint(sc, "Введите пункт отправления");
-        String destination = getPoint(sc, "Введите пункт назначения");
+        String departurePoint = getPoint("Введите пункт отправления");
+        String destination = getPoint("Введите пункт назначения");
 
         System.out.println("\n***Список поездов с пересадкой***\n");
         getTransferTrains(departurePoint, destination).forEach(System.out::println);
@@ -187,18 +185,17 @@ public class TrainList {
     public void listPointAndTime() {
         try (Scanner sc = new Scanner(System.in)) {
             System.out.println("\n***Список поездов по пункту отправления и времени прибытия***\n");
-            String departurePoint = getPoint(sc, "Введите пункт отправления");
-            LocalTime arrivalTime = getTime(sc, "Введите время прибытия");
+            String departurePoint = getPoint("Введите пункт отправления");
+            LocalTime arrivalTime = getTime("Введите время прибытия");
             System.out.println("\n***Список поездов***\n");
             getListTrainByPointAndTime(departurePoint, arrivalTime).forEach(System.out::println);
         }
     }
 
     public void listPoints() {
-        Scanner sc = new Scanner(System.in);
         System.out.println("\n***Список поездов по пунктам отправления и назначения***\n");
-        String departurePoint = getPoint(sc, "Введите пункт отправления");
-        String destination = getPoint(sc, "Введите пункт назначения");
+        String departurePoint = getPoint("Введите пункт отправления");
+        String destination = getPoint("Введите пункт назначения");
         System.out.println("\n***Список поездов***\n");
         getNotTransferTrains(departurePoint, destination).forEach(System.out::println);
     }
