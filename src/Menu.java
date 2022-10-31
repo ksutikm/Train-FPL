@@ -16,30 +16,19 @@ public class Menu {
                 printMenu();
                 switch (sc.nextInt()) {
                     case 1:
-                        trains.addTrain();
-                        System.out.println("\nПоезд добавлен!");
-                        break;
+                        trains.addTrain(); break;
                     case 2:
-                        int num = trains.removeTrain();
-                        if (num != -1) {
-                            System.out.println("\nПоезд №" + num + " удален!");
-                        }
-                        break;
+                        trains.removeTrain(); break;
                     case 3:
-                        trains.moveTrain();
-                        break;
+                        trains.moveTrain(); break;
                     case 4:
-                        trains.listPointAndTime();
-                        break;
+                        trains.listPointAndTime(); break;
                     case 5:
-                        trains.listPoints();
-                        break;
+                        trains.listPoints(); break;
                     case 6:
-                        trains.printTrains();
-                        break;
+                        trains.printTrains(); break;
                     case 7:
-                        exit(0);
-                        break;
+                        exit(0); break;
                     default:
                         System.out.println("Введён неверный номер!");
                 }

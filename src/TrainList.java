@@ -106,6 +106,7 @@ public class TrainList {
                     getTime(sc, "Введите время прибытия"),
                     getTicketPrice(sc)
             ));
+            System.out.println("\nПоезд добавлен!");
         } catch (MyException me) {
             System.out.println(me.getMessage());
         }
@@ -120,22 +121,20 @@ public class TrainList {
         return trains.stream().filter(t -> t.getNumber() == numberTrain).findFirst().orElse(null);
     }
 
-    public int removeTrain() {
-        int num = -1;
+    public void removeTrain() {
         try (Scanner sc = new Scanner(System.in)) {
             System.out.println("\n***Удаление поезда***");
             printTrains();
             Train train = getTrainForRemove(sc);
             if (train != null) {
                 trains.remove(train);
-                return train.getNumber();
+                System.out.println("\nПоезд №" + train.getNumber() + " удален!");
             } else {
                 throw new MyException("Введен номер поезда, которого нет в списках!");
             }
         } catch (MyException me) {
             System.out.println(me.getMessage());
         }
-        return num;
     }
 
     public void moveTrain() {
