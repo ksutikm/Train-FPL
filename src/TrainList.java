@@ -52,7 +52,7 @@ public class TrainList {
             String enteredTime = sc.next();
             if (!enteredTime.matches("[0-9][0-9]:[0-9][0-9]"))
                 throw new MyException("Ошибка!!! Введен неверный формат времени!");
-            time = enteredTime.split(":");
+            time = getArrayStrings(enteredTime, ":");
             if (Integer.parseInt(time[0]) >= 24 || Integer.parseInt(time[1]) >= 60)
                 throw new MyException("Ошибка!!! Введен неверный формат времени!");
         return getLocalTime(time);
@@ -62,15 +62,19 @@ public class TrainList {
         return LocalTime.of(Integer.parseInt(time[0]), Integer.parseInt(time[1]));
     }
 
+    private String[] getArrayStrings(String str, String separator) {
+        return str.split(separator);
+    }
+
     private void scannerData() {
         try (Scanner in = new Scanner(new File("src/data.txt"))) {
             while (in.hasNextLine()) {
-                String[] str = in.nextLine().split(",");
+                String[] str = getArrayStrings(in.nextLine(), ",");
                 if (str.length != 6 || !str[0].matches("[0-9]+") || !str[5].matches("[0-9]+.[0-9]+") ||
                         !str[3].matches("[0-9][0-9]:[0-9][0-9]") || !str[4].matches("[0-9][0-9]:[0-9][0-9]"))
                     throw new IOException();
-                String[] s1 = str[3].split(":");
-                String[] s2 = str[4].split(":");
+                String[] s1 = getArrayStrings(str[3], ":");
+                String[] s2 = getArrayStrings(str[3], ":");
                 LocalTime t1 = LocalTime.of(Integer.parseInt(s1[0]), Integer.parseInt(s1[1]));
                 LocalTime t2 = LocalTime.of(Integer.parseInt(s2[0]), Integer.parseInt(s2[1]));
                 trains.add(new Train(Integer.parseInt(str[0]), str[1], str[2], t1, t2, Double.parseDouble(str[5])));
@@ -172,7 +176,7 @@ public class TrainList {
             String arrivalTime = sc.next();
             if (!arrivalTime.matches("[0-9][0-9]:[0-9][0-9]"))
                 throw new MyException("Ошибка!!! Введен неверный формат времени!");
-            s2 = arrivalTime.split(":");
+            s2 = getArrayStrings(arrivalTime, ":");
             if (Integer.parseInt(s2[0]) >= 24 || Integer.parseInt(s2[1]) >= 60)
                 throw new MyException("Ошибка!!! Введен неверный формат времени!");
 
