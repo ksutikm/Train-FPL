@@ -22,7 +22,7 @@ public class TrainList {
 
     private int getNumberTrain(Scanner sc) {
         printMessage("Введите номер поезда");
-        int number =sc.nextInt();
+        int number = sc.nextInt();
         if (number <= 0) try {
             throw new MyException("Ошибка!!! Введен неверный номер поезда!");
         } catch (MyException e) {
@@ -41,7 +41,7 @@ public class TrainList {
         LocalTime time = null;
         try {
             time = getTime(sc);
-        }  catch (MyException me) {
+        } catch (MyException me) {
             System.out.println(me.getMessage());
         }
         return time;
@@ -49,12 +49,12 @@ public class TrainList {
 
     private LocalTime getTime(Scanner sc) throws MyException {
         String[] time;
-            String enteredTime = sc.next();
-            if (!enteredTime.matches("[0-9][0-9]:[0-9][0-9]"))
-                throw new MyException("Ошибка!!! Введен неверный формат времени!");
-            time = getArrayStrings(enteredTime, ":");
-            if (Integer.parseInt(time[0]) >= 24 || Integer.parseInt(time[1]) >= 60)
-                throw new MyException("Ошибка!!! Введен неверный формат времени!");
+        String enteredTime = sc.next();
+        if (!enteredTime.matches("[0-9][0-9]:[0-9][0-9]"))
+            throw new MyException("Ошибка!!! Введен неверный формат времени!");
+        time = getArrayStrings(enteredTime, ":");
+        if (Integer.parseInt(time[0]) >= 24 || Integer.parseInt(time[1]) >= 60)
+            throw new MyException("Ошибка!!! Введен неверный формат времени!");
         return getLocalTime(time);
     }
 
@@ -66,18 +66,28 @@ public class TrainList {
         return str.split(separator);
     }
 
+    private Train getTrainByLine(Scanner in) throws IOException {
+        String[] str = getArrayStrings(in.nextLine(), ",");
+        if (checkCorrectData(str))
+            throw new IOException();
+        String[] time1 = getArrayStrings(str[3], ":");
+        String[] time2 = getArrayStrings(str[4], ":");
+        return getNewTrain(Integer.parseInt(str[0]), str[1], str[2], getLocalTime(time1), getLocalTime(time2), Double.parseDouble(str[5]));
+    }
+
+    private boolean checkCorrectData(String[] str) {
+        return str.length != 6 || !str[0].matches("[0-9]+") || !str[5].matches("[0-9]+.[0-9]+") ||
+                !str[3].matches("[0-9][0-9]:[0-9][0-9]") || !str[4].matches("[0-9][0-9]:[0-9][0-9]");
+    }
+
+    private Train getNewTrain(int number, String departurePoint, String destination, LocalTime departureTime, LocalTime arrivalTime, double ticketPrice) {
+        return new Train(number, departurePoint, destination, departureTime, arrivalTime, ticketPrice);
+    }
+
     private void scannerData() {
         try (Scanner in = new Scanner(new File("src/data.txt"))) {
             while (in.hasNextLine()) {
-                String[] str = getArrayStrings(in.nextLine(), ",");
-                if (str.length != 6 || !str[0].matches("[0-9]+") || !str[5].matches("[0-9]+.[0-9]+") ||
-                        !str[3].matches("[0-9][0-9]:[0-9][0-9]") || !str[4].matches("[0-9][0-9]:[0-9][0-9]"))
-                    throw new IOException();
-                String[] s1 = getArrayStrings(str[3], ":");
-                String[] s2 = getArrayStrings(str[4], ":");
-                LocalTime t1 = LocalTime.of(Integer.parseInt(s1[0]), Integer.parseInt(s1[1]));
-                LocalTime t2 = LocalTime.of(Integer.parseInt(s2[0]), Integer.parseInt(s2[1]));
-                trains.add(new Train(Integer.parseInt(str[0]), str[1], str[2], t1, t2, Double.parseDouble(str[5])));
+                trains.add(getTrainByLine(in));
             }
         } catch (FileNotFoundException e) {
             System.out.println("К сожалению, данные из файла не загрузились.");
@@ -90,7 +100,7 @@ public class TrainList {
     public void addTrain() {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n***Добавление поезда***\n");
-        trains.add(new Train(
+        trains.add(getNewTrain(
                 getNumberTrain(sc),
                 getPoint(sc, "Введите пункт отправления"),
                 getPoint(sc, "Введите пункт назначения"),
@@ -102,7 +112,7 @@ public class TrainList {
 
     public int removeTrain() {
         int num = -1;
-        try(Scanner sc = new Scanner(System.in)) {
+        try (Scanner sc = new Scanner(System.in)) {
             System.out.println("\n***Удаление поезда***");
             printTrains();
             System.out.print("Введите номер поезда -> ");
@@ -164,7 +174,7 @@ public class TrainList {
     }
 
     public void listPointAndTime() {
-        try (Scanner sc = new Scanner(System.in)){
+        try (Scanner sc = new Scanner(System.in)) {
             String s2[];
 
             System.out.println("\n***Список поездов по пункту отправления и времени прибытия***\n");
