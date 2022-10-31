@@ -12,8 +12,6 @@ public class Menu {
 
     public void getMenu() {
         try (Scanner sc = new Scanner(System.in)){
-//            int value = 0;
-//            while (value != 7) {
             while (true) {
                 printMenu();
                 switch (sc.nextInt()) {
