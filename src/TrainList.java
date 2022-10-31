@@ -3,12 +3,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 import static java.lang.System.exit;
 
 public class TrainList {
-    private ArrayList<Train> trains;
+    private List<Train> trains;
 
     TrainList() {
         this.trains = new ArrayList<>();
@@ -137,8 +139,8 @@ public class TrainList {
         }
     }
 
-    private ArrayList<Train> getMoveTrains(String departurePoint, String destination) {
-        ArrayList<Train> moveTrains = new ArrayList<>();
+    private List<Train> getMoveTrains(String departurePoint, String destination) {
+        List<Train> moveTrains = new ArrayList<>();
         for (Train t : trains) {
             if (t.getDeparturePoint().toLowerCase().equals(departurePoint.toLowerCase())) {
                 for (Train t2 : trains) {
@@ -153,6 +155,16 @@ public class TrainList {
         return moveTrains;
     }
 
+    private List<Train> getTransferTrains(String departurePoint, String destination){
+        return getMoveTrains(departurePoint, destination).stream().distinct().sorted(new TrainComparator()).collect(Collectors.toList());
+    }
+
+    private List<Train> getNotTransferTrains(String departurePoint, String destination) {
+        return trains.stream().filter(t -> t.getDeparturePoint().toLowerCase().equals(departurePoint.toLowerCase()))
+                .filter(train -> train.getDestination().toLowerCase().equals(destination.toLowerCase()))
+                .sorted(new TrainComparator()).collect(Collectors.toList());
+    }
+
     public void moveTrain() {
         Scanner sc = new Scanner(System.in);
 
@@ -161,58 +173,34 @@ public class TrainList {
         String destination = getPoint(sc, "Введите пункт назначения");
 
         System.out.println("\n***Список поездов с пересадкой***\n");
-        getMoveTrains(departurePoint, destination).stream().distinct().sorted(new TrainComparator()).forEach(System.out::println);
+        getTransferTrains(departurePoint, destination).forEach(System.out::println);
 
         System.out.println("\n***Список поездов без пересадки***\n");
-        trains.stream().filter(t -> t.getDeparturePoint().toLowerCase().equals(departurePoint.toLowerCase()))
-                .filter(train -> train.getDestination().toLowerCase().equals(destination.toLowerCase()))
-                .sorted(new TrainComparator()).forEach(System.out::println);
+        getNotTransferTrains(departurePoint, destination).forEach(System.out::println);
+    }
 
+    private List<Train> getListTrainByPointAndTime(String departurePoint, LocalTime arrivalTime) {
+        return trains.stream().filter(t -> t.getDeparturePoint().toLowerCase().equals(departurePoint.toLowerCase()))
+                .filter(t -> arrivalTime.equals(t.getArrivalTime())).collect(Collectors.toList());
     }
 
     public void listPointAndTime() {
         try (Scanner sc = new Scanner(System.in)) {
-            String s2[];
-
             System.out.println("\n***Список поездов по пункту отправления и времени прибытия***\n");
-
-            System.out.print("Введите пункт отправления -> ");
-            String departurePoint = sc.next();
-
-            System.out.print("Введите время прибытия -> ");
-            String arrivalTime = sc.next();
-            if (!arrivalTime.matches("[0-9][0-9]:[0-9][0-9]"))
-                throw new MyException("Ошибка!!! Введен неверный формат времени!");
-            s2 = getArrayStrings(arrivalTime, ":");
-            if (Integer.parseInt(s2[0]) >= 24 || Integer.parseInt(s2[1]) >= 60)
-                throw new MyException("Ошибка!!! Введен неверный формат времени!");
-
-            LocalTime t2 = LocalTime.of(Integer.parseInt(s2[0]), Integer.parseInt(s2[1]));
-
+            String departurePoint = getPoint(sc, "Введите пункт отправления");
+            LocalTime arrivalTime = getTime(sc, "Введите время прибытия");
             System.out.println("\n***Список поездов***\n");
-
-            trains.stream().filter(t -> t.getDeparturePoint().toLowerCase().equals(departurePoint.toLowerCase()))
-                    .filter(t -> t2.equals(t.getArrivalTime())).forEach(System.out::println);
-
-        } catch (MyException me) {
-            System.out.println(me.getMessage());
+            getListTrainByPointAndTime(departurePoint, arrivalTime).forEach(System.out::println);
         }
     }
 
     public void listPoints() {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n***Список поездов по пунктам отправления и назначения***\n");
-        System.out.print("Введите пункт отправления -> ");
-        String departurePoint = sc.next();
-
-        System.out.print("Введите пункт назначения -> ");
-        String destination = sc.next();
-
+        String departurePoint = getPoint(sc, "Введите пункт отправления");
+        String destination = getPoint(sc, "Введите пункт назначения");
         System.out.println("\n***Список поездов***\n");
-
-        trains.stream().filter(t -> t.getDeparturePoint().toLowerCase().equals(departurePoint.toLowerCase()))
-                .filter(train -> train.getDestination().toLowerCase().equals(destination.toLowerCase()))
-                .sorted(new TrainComparator()).forEach(System.out::println);
+        getNotTransferTrains(departurePoint, destination).forEach(System.out::println);
     }
 
     public void printTrains() {
