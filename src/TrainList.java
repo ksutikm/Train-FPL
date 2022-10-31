@@ -200,9 +200,13 @@ public class TrainList {
         getNotTransferTrains(departurePoint, destination).forEach(System.out::println);
     }
 
+    private List<Train> getSortedTrains() {
+        return trains.stream().sorted(new TrainComparator()).collect(Collectors.toList());
+    }
+
     public void printTrains() {
         System.out.println("\n***Список поездов***\n");
-        trains.stream().sorted(new TrainComparator()).forEach(System.out::println);
+        getSortedTrains().forEach(System.out::println);
     }
 
     private void printMessage(String message) {
